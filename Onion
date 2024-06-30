@@ -1,0 +1,36 @@
+mkdir ~/tor_wifi
+cd ~/tor_wifi/
+wget https://raspberry-pi.fr/download/tor_wifi/install_hotspot.sh -O install_hotspot.sh
+chmod +x ./install_hotspot.sh
+sudo ./install_hotspot.sh
+
+You just have to follow the instructions of the script:
+
+Do "Enter" to start the script.
+Type in the name you want to give to your Tor Wi-Fi network.
+Type the password for the Tor Wi-Fi network. Attention, 8 characters minimum, otherwise you will have a bug!
+Confirm the password
+The Raspberry Pi will now restart on its own. Once restarted, you should be able to see the name of your new Wi-Fi network in the list of your available networks.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Add Tor to our Wi-Fi router to encrypt all our internet traffic!
+Now that we have transformed our Raspberry Pi into a Wi-Fi access point, we just have to add Tor to it in order to have a working Wi-Fi Tor router on Raspberry Pi, an Onion Pi.
+
+To do this, we will again download and run a script, which this time will install Tor and pass all the traffic received by the Raspberry through Tor to the outside world.
+
+By the way, note that this script redirects all your TCP traffic through Tor, with the exception of traffic on port 22, ie the one dedicated to SSH. This exception is there so that you can easily manage your Tor router from a PC connected to the network.
+
+Reconnect to the Raspberry Pi and play the commands below:
+
+cd ~/tor_wifi/
+wget https://raspberry-pi.fr/download/tor_wifi/install_tor.sh -O install_tor.sh
+chmod +x ./install_tor.sh
+sudo ./install_tor.sh
+
+Again, press "Enter" to start the script, and all you have to do is wait. At the end of it, the Raspberry Pi will restart automatically.
+
+Once the Pi is restarted, you should see your Tor Wi-Fi network appear in the list of available Wi-Fi networks
+
+We are going to check that our internet traffic now goes through Tor. 
+To do this, it's very simple, connect to your Tor Wi-Fi, and go to the Tor project verification page. https://check.torproject.org/
+If you are logged in correctly, you should have a page that looks like this!
