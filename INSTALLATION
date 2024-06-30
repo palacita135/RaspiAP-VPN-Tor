@@ -1,0 +1,114 @@
+What you’ll need
+1- RaspberryPi with the latest release of Raspberry Pi OS (32-bit) Lite, you can use Raspberry Pi Imager to install the OS in an SDcard.
+
+2- Ethernet connection with an internet :).
+
+3-AirVPN Account. https://airvpn.org/
+
+Installation
+The Installation divided into four parts as follow:
+
+Part one: RaspAP WiFi management portal https://docs.raspap.com/
+
+1- Install RaspAP WiFi management, you can install using the following command:
+
+sudo curl -sL https://install.raspap.com | bash
+
+when Installation is completed it should reboot your RaspberryPi.
+
+2- Once the reboot is completed, a new WiFi with SSID raspi-webgui will start to broadcast, connect to it using below credentials for quick test to make sure its working.
+
+SSID: raspi-webgui
+Password: ChangeMe
+
+You can access RaspAP portal using below credentials in your browser by entering your RaspberryPi IP or 10.3.141.1 if you are connected to access point.
+
+Username: admin
+Password: secret
+
+From the portal you can change and setup your access point as you want, use this WiKi to learn more about it.
+
+Part two:install TOR
+
+1- Install TOR:
+
+sudo apt-get install tor
+
+2- Config Torrc file to allow VPN client to control TOR:
+
+echo -e “ControlPort 9051\nCookieAuthentication 1” | sudo tee /etc/tor/torrc
+
+3- Restart the TOR service to apply the new configuration
+
+sudo systemctl restart tor.service
+
+Part three: install AirVPN Client
+
+1- Download Eddie Client version 2.16.3 (AirVPN Client):
+
+sudo wget "https://airvpn.org/mirrors/eddie.website/download/?platform=linux&arch=armhf&ui=cli&format=portable.tar.gz&version=2.16.3&r=0.08132300118915925" -O /opt/eddie-cli.tar.gz
+2- Change current directory and unzip the downloaded file:
+
+cd /opt/
+sudo tar -xf eddie-cli.tar.gz
+sudo mv eddie-cli_2.16.3_linux_armhf_portable eddie
+sudo cd eddie
+3- Finally let’s try it out with following command
+
+replace USERNAME and PASSWORD with your AirVPN credentials
+
+./eddie-cli -connect -netlock.mode=Auto -login=USERNAME -password=PASSWORD 'proxy.tor.control.port=9051' 'proxy.port=9050' 'proxy.host=127.0.0.1' 'proxy.mode=tor'
+4- Give it a couple of minutes and check the log, until you see some log start with:
+
+ -Tor Control Guard IP detected
+..
+..
+ — Checking DNS
+ — Connected.
+ — OpenVPN > Initialization Sequence Completed
+5- Now your Access Point is working, connect to it with any device to test it out with https://ipapi.co/ to check your ip if different then your ISP.
+
+Part four: turn it into service (run on startup)
+
+Now with everything working grate, we need to make it run on boot:
+
+1- Create file service:
+
+sudo nano /etc/systemd/system/eddie.service
+
+2- Copy the below service template:
+
+replace USERNAME and PASSWORD with your AirVPN credentials
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+[Unit]
+Description=Eddie Client  
+After=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory =/opt/eddie/
+ExecStart =  sudo /opt/eddie/eddie-cli -connect -netlock.mode=Auto -login=USERNAME -password=PASSOWRD 'proxy.tor.control.port=9051' 'proxy.port=9050' 'proxy.host=127.0.0.1' 'proxy.mode=tor'
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3- Save the file with ctrl+x and confirm with y and Enter
+
+4- Enable the service to work on boot:
+
+sudo systemctl enable eddie.service
+
+5- Start the service:
+
+sudo systemctl start eddie.service
+
+6- Check the status of the service using:
+
+sudo systemctl status eddie.service
+
+That’s it, Finally now you have a fully Working anonymous access point
